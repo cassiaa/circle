@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<head>
+	<title>one week of traveling</title>
+	<meta charset="utf-8">
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+	<script src="jquery-3.2.1.min.js"></script>
+  	<script src="d3.js"></script>
+</head>
+
+<style>
+
+	body {
+		font-family: 'Lato', Helvetica;
+		letter-spacing: .07em;
+  		line-height: 1.2em;
+	}
+
+	p {
+		font-size: 14px;
+	}
+
+	h2 {
+		font-size: 16px;
+		font-style: italic;
+	}
+
+	#container {
+		float: left;
+		position: relative;
+	}
+
+
+	#header {
+		margin-left: 10px;
+	}
+
+	#sidebar {
+		width: 200px;
+		height: 70vh;
+		margin-left: 50px;
+		display: inline-block;
+		float: left;
+		
+	}
+
+	#top-sidebar {
+		width: 200px;
+		height: 70vh;
+		display: inline-block;
+		float: left;
+	}
+
+	#bottom-sidebar {
+		width: 200px;
+		height: 20vh;
+		display: inline-block;
+		float: left;
+		
+	}
+
+	#svg {
+		margin-top: -20px;
+		margin-left: 150px;
+		display: inline-block;
+		float: left;
+	}
+
+	
+</style>
+
+<body>
+
+	
+
+	<div id="header">
+		<h1>one week of traveling</h1>
+	</div>
+
+	<div id="container">
+		<div id="sidebar">
+			
+			<div id="top-sidebar">
+				
+				<p>For one week, I kept track of my movements throughout the day. I kept notes on how when my departure and arrival times, where I started and ended, and my method of travel.</p>
+
+				<h2>How to Read</h2>
+
+				<p>Starting from the center, each concentric circle represents a different location. For example, the innermost circle is home. The circle can be read like a 24 hour clock, with 12AM at the very top. Each straight line represents a journey from point A to point B and its color indicates the transportation type (see key below). Black arcs indicate how long I stayed in one place. Hover on a trip to see more information.<p>
+			</div>
+			<div id="bottom-sidebar"></div>
+		
+		</div>
+		<div id="svg"></div>
+	</div>
+
+	<!--<div id="sidebar"></div>-->
+
+</body>
+
+
+<script type="text/javascript">
+
+function calculateRadian (angleInTime) {
+	
+	var angleInDegrees = (angleInTime/24)*360;
+	var angleInRadians = ((angleInDegrees-90) * Math.PI / 180.0); 
+	return  angleInRadians;
+	
+}
+
+function calculateRadianPath (angleInTime) {
+	var angleInDegrees = (angleInTime/24)*360;
+	var angleInRadians = ((angleInDegrees) * Math.PI / 180.0); 
+	return  angleInRadians;
+}
+
+function getLocation (location) {
+	if (location == 1) { return "home"; }
+	else if (location == 2) { return "OPERS gym"; }
+	else if (location == 3) { return "Cowell Mobile Offices"; }
+	else if (location == 4) { return "Career Center"; }
+	else if (location == 5) { return "Iveta Cafe"; }
+	else if (location == 6) { return "Mchenry Library"; }
+	else if (location == 7) { return "Thimann Lecture Hall"; } 
+	else if (location == 9) { return "Baskin Visual Arts L101"; }
+	else if (location == 10) { return "Media Theater"; }
+	else if (location == 11) { return "Oakes Learning Center"; }
+	else if (location == 12) { return "Baskin Engineering E2-258"; }
+	else if (location == 13) { return "Baskin Undergraduate Advising"; }
+	else if (location == 14) { return "my friend Vinod's house"; }
+	else if (location == 15) { return "some random party on Delaware Ave"; }
+	else if (location == 16) { return "Trader Joes on Front St."; }
+	else if (location == 17) { return "my friend James's house"; }
+	else if (location == 18) { return "Boulder Creek Coffee Roasters"; }
+	else if (location == 19) { return "Camp Krem, Boulder Creek"; }
+}
+
+function parseDate (date) {
+	var date_string = "" + date;
+	var year = "";
+	var month = "";
+	var day = "";
+
+	for (var i = 0; i < 4; i++) {
+		year += date_string[i];
+	}
+	for (var i = 4; i < 6; i++) {
+		month += "" + date_string[i];
+	}
+	for (var i = 6; i < date_string.length; i++) {
+		day += "" + date_string[i];
+	}
+	return (month+"/"+day+"/"+year);
+}
+
+//DRAW CIRCLES--------------------------------------------------------------------
+
+	//Create an array that will be the base data for our concentric circles
+	var draw_circle = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+	var draw_circle_2 = [];
+
+	for (var i = draw_circle.length; i > 0; i--) {
+		draw_circle_2.push(i);
+	}
+
+//SET UP SVG------------------------------------------------------------------------
+
+	//Append an SVG that is the size of the current window to the body of the page
+	var w = $(window).width()-550;
+	var h = $(window).height()-70;
+	var r_size = 18;
+	console.log ("r_size = " + r_size);
+
+
+	var svg = d3.select("#svg")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h);
+				
+
+	//Create and append circle elements to the SVG
+		var main_circle = svg.selectAll("circle")
+				.data(draw_circle_2)
+				.enter()
+				.append("circle");
+
+		//Attributes of the circles
+		main_circle.attr("cx", w/2)
+				.attr("cy", h/2)
+				.attr("r", function (d) { 
+					return r_size * d; 
+				})
+				.attr("stroke", "rgba(90,90,90,.1")
+				.attr("fill", "rgba(225,225,225,0.04)");
+				/*	if (d%2==0) {  }
+					else { return "white"; }
+				});*/
+			
+//LOAD DATA FROM TSV---------------------------------------------------------------
+	//Get stuff from the TSV file
+	
+	d3.tsv("circle.tsv", function(d) {
+		d.day = +d.day;
+		d.loc_a = +d.loc_a;
+		d.loc_b = +d.loc_b;
+		d.time_a = +d.time_a;
+		d.time_b = +d.time_b;
+		d.mode = +d.mode;
+
+		return d;
+	},
+	
+	function (error, data) {
+		if (error) throw error;
+
+		var time_a = data.map(function(d) { return d.time_a; });
+		var time_b = data.map(function(d) { return d.time_b; });
+		var loc_a = data.map(function(d) { return d.loc_a; });
+		var loc_b = data.map(function(d) { return d.loc_b; });
+		var day = data.map(function(d) { return d.day; });
+
+		console.log(time_a);
+		console.log(time_b);
+
+
+//LINES---------------------------------------------------------------------------
+
+	var lines = svg.selectAll("line")
+		.data(data)
+		.enter()
+		.append("line");
+
+	lines
+		.attr("x1", function (d) {
+			var angle = calculateRadian(d.time_a);
+			return (w/2 + Math.cos(angle) * (r_size*d.loc_a));
+		})
+		.attr("y1", function (d) {
+			var angle = calculateRadian(d.time_a);
+			return (h/2 + Math.sin(angle) * (r_size*d.loc_a));		
+		})
+		.attr("x2", function (d) {
+			var angle = calculateRadian(d.time_b);
+			return (w/2 + Math.cos(angle) * (r_size*d.loc_b));
+		})
+		.attr("y2", function (d) {
+			var angle = calculateRadian(d.time_b);
+			return (h/2 + Math.sin(angle) * (r_size*d.loc_b));
+		})
+		.attr("stroke", function (d) {
+			if (d.mode == 1) { return "rgb(6, 198, 229)"; }
+			else if (d.mode == 2) { return "rgb(255, 22, 119)"; }
+			else if (d.mode == 3) { return "rgb(75, 214, 6)"; }
+			else if (d.mode == 4) { return "orange"; }
+			})
+		.attr("stroke-width", "4")
+		.attr("stroke-opacity", .7)
+
+
+
+	lines
+		.on("mouseover", function (d) { 
+			var transform_loc_ax = (w/2+225 + Math.cos(calculateRadian(d.time_a)) * (r_size*d.loc_a));
+			var transform_loc_ay = (h/2 + Math.sin(calculateRadian(d.time_a)) * (r_size*d.loc_a));
+			var transform_loc_bx = (w/2+550 + Math.cos(calculateRadian(d.time_b)) * (r_size*d.loc_b));
+			var transform_loc_by = (h/2 + Math.sin(calculateRadian(d.time_b)) * (r_size*d.loc_b));
+
+			lines.style("cursor", "pointer");
+			
+			tooltip_a.text(parseDate(d.day) + ": Left " + getLocation(d.loc_a) + " at " + d.time_a_raw + ",\n" + "arrived at " + getLocation(d.loc_b) + " at " + d.time_b_raw)
+
+			.style("transform", "translate("+ transform_loc_ax + "px," +transform_loc_ay + "px)")
+
+
+			return tooltip_a.style("visibility", "visible");
+		})
+
+
+
+	lines
+		.on("mouseout", function() {
+			tooltip_a.style("cursor", "default");
+			return tooltip_a.style("visibility", "hidden");
+		});
+
+
+
+
+	var tooltip_a = d3.select("body")
+		.append("div")
+		.style("width", "200px")
+		.style("padding", "5px")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility","hidden")
+		.style("background", "white")
+		.text("a simple tooltip");
+
+//ARC-----------------------------------------------------------------------------
+
+	var arc = d3.arc()
+		.innerRadius(function (d, i) { return d.loc_b*(r_size) - 2; })
+		.outerRadius(function (d, i) { return d.loc_b*(r_size) + 2; })
+		.startAngle(function (d, i) { 
+					
+			console.log("time_b[i] = " + time_b[i] + ", time_a[i+1] = " + time_a[i+1] + ", loc_b[i] = " + loc_b[i]);
+					
+			var isTrue_pt1 = (time_b[i] > time_a[i+1]);
+			console.log(isTrue_pt1);
+
+			var isTrue_pt2 = (loc_b[i] != 1);
+			console.log(isTrue_pt2);
+					
+			if (isTrue_pt1 && isTrue_pt2) {
+					
+				console.log("inside start angle if");
+				return calculateRadianPath(time_b[i]-24); 
+			}
+		
+			return calculateRadianPath(time_b[i]);  
+		})
+		.endAngle(function (d, i) {
+			if (time_b[i] > time_a[i+1] && loc_b[i] != 1) {
+				console.log("inside end angle if");
+				return calculateRadianPath(time_a[i+1]);
+			} 
+					 
+			return calculateRadianPath(time_a[1+i]);
+		});
+
+
+	var arcs = svg.selectAll("path")
+		.data(data)
+		.enter()
+		.append("path")
+		.attr("d", arc)
+		.attr("fill", "black")
+		.attr("transform", "translate(" + w/2 + "," + h/2 + ")");
+
+
+		
+
+
+
+//LEGEND---------------------------------------------------------------------------
+
+	var key = [1, 2, 3, 4];
+	var key_names = ["bus", "walk", "bike", "car"];
+		
+	var bottom_sidebar = 
+		d3.select("#bottom-sidebar")
+		.append("svg")
+		.attr("width", "200px")
+		.attr("height", "20vh");
+
+	var legend = 
+		bottom_sidebar.selectAll("rect")
+		.data(key)
+		.enter()
+		.append("rect")
+		.attr("width", 18)
+		.attr("height", 18)
+		.attr('transform', (d, i) => "translate(20," + (i * 30 + 16)+ ")")
+		.style("fill", function (d) {
+			if (d == 1) { return "rgb(6, 198, 229)"; }
+			else if (d == 2) { return "rgb(255, 22, 119)"; }
+			else if (d == 3) { return "rgb(75, 214, 6)"; }
+			else if (d == 4) { return "orange"; }
+		});
+
+	var legend_names = bottom_sidebar.selectAll("text.key_names")
+		.data(key_names)
+		.enter()
+		.append("text")
+		.attr("x", 24)
+		.attr("y", 9)
+		.attr("dy", 5)
+		.style("font-family", "Lato, helvetica")
+		.style("font-size", "16")
+				
+
+		.text(d => "" + d)
+		.attr('transform', (d, i) => "translate(20," + (i * 30 + 16)+ ")");
+
+	});
+</script>
+
+
+
+
+
