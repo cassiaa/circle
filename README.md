@@ -1,6 +1,6 @@
 # circle
 
-For one week, I kept track of my movements throughout the day. I kept notes on how when my departure and arrival times, where I started and ended, and my method of travel.
+For one week, I kept track of my movements throughout the day. I kept notes on how when my departure and arrival times, where I started and ended, and my method of travel. The data was then processed and visualized using D3.js.
 
 How to Read:
 
